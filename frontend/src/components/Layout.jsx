@@ -16,7 +16,14 @@ export default function Layout({ children }) {
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      try { setUser(JSON.parse(savedUser)); } catch (e) {}
+      try { 
+        const u = JSON.parse(savedUser);
+        setUser(u);
+      } catch (e) {
+        setUser(null);
+      }
+    } else {
+      setUser(null);
     }
   }, []);
 
@@ -35,6 +42,20 @@ export default function Layout({ children }) {
     { name: 'Certificates', path: '/certificates', icon: FileCheck },
     { name: 'Settings', path: '/settings', icon: Settings },
   ];
+
+  const handleClaimCredits = () => {
+    if (!user) {
+      setIsAuthOpen(true);
+      return;
+    }
+    const updatedUser = {
+      ...user,
+      skillCredits: (user.skillCredits || 5) + 5
+    };
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(updatedUser);
+    alert('🎉 +5 Free Skill Credits 🪙 added to your account successfully!');
+  };
 
   return (
     <div className={`flex min-h-screen font-sans ${isDarkMode ? 'bg-[#0B132B] text-slate-100' : 'bg-slate-100 text-slate-900'}`}>
@@ -97,7 +118,7 @@ export default function Layout({ children }) {
                 </div>
                 <div className="truncate">
                   <p className="font-extrabold text-sm truncate">{user.name}</p>
-                  <p className="text-xs text-emerald-500 font-bold">{user.skillCredits} Credits 🪙</p>
+                  <p className="text-xs text-emerald-500 font-bold">{(user.skillCredits && Number(user.skillCredits) > 0) ? user.skillCredits : 5} Credits 🪙</p>
                 </div>
               </div>
               <button onClick={handleLogout} className="text-xs text-red-500 font-black hover:underline ml-1">
@@ -132,14 +153,22 @@ export default function Layout({ children }) {
           </div>
 
           <div className="flex items-center gap-4">
+            <button
+              onClick={handleClaimCredits}
+              className="px-4 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 hover:bg-amber-500/20 font-black text-xs flex items-center gap-1.5 transition-all active:scale-95 shadow-sm"
+              title="Claim +5 Free Credits"
+            >
+              <Coins className="w-4 h-4 text-amber-400" /> + Claim Free Credits 🪙
+            </button>
+
             <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-500 font-bold text-sm">
               <Flame className="w-4 h-4 fill-amber-500" />
-              <span>7 Day Streak</span>
+              <span>{user ? `${user.streakCount ?? 0} Day Streak` : '0 Day Streak'}</span>
             </div>
 
             <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
               <Coins className="w-4 h-4" />
-              <span>{user ? `${user.skillCredits} Credits` : '12 Credits'}</span>
+              <span>{user ? `${(user.skillCredits && user.skillCredits > 0) ? user.skillCredits : 5} Credits` : '5 Credits 🪙'}</span>
             </div>
 
             <div className="w-9 h-9 rounded-2xl bg-violet-600 text-white font-black flex items-center justify-center text-sm border border-violet-400 shadow-sm">

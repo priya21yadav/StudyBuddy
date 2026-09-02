@@ -39,8 +39,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       name: formData.name,
       email: formData.email,
       password: formData.password,
-      skillsToTeach: [{ skillName: formData.teachSkill || 'Web Dev', level: 'Intermediate' }],
-      skillsToLearn: [{ skillName: formData.learnSkill || 'DSA', level: 'Beginner' }]
+      skillsToTeach: [formData.teachSkill || 'Web Dev'],
+      skillsToLearn: [formData.learnSkill || 'DSA']
     };
 
     try {
@@ -52,7 +52,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       onClose();
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.message || 'Authentication failed. Check connection.');
+      const errMsg = err.response?.data?.message 
+        || (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')
+            ? 'Backend Server (localhost:5000) is connecting... Please try again in a moment!' 
+            : 'Authentication failed. Please check your inputs.');
+      setError(errMsg);
     }
   };
 
@@ -77,7 +81,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             {isLogin ? 'Welcome Back!' : 'Join StudyBuddy'}
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-base">
-            {isLogin ? 'Log in to continue your skill exchange journey.' : 'Create an account and get 3 free credits! 🪙'}
+            {isLogin ? 'Log in to continue your skill exchange journey.' : 'Create an account and get 5 free credits! 🪙'}
           </p>
         </div>
 
@@ -174,7 +178,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full py-3.5 rounded-xl text-white font-bold text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg"
+            className="w-full py-3.5 rounded-xl text-white font-bold text-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 transition-all shadow-lg active:scale-95"
           >
             {loading ? 'Connecting...' : (isLogin ? 'Log In Now' : 'Create Free Account')}
           </button>
